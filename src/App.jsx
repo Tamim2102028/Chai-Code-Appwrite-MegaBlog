@@ -27,9 +27,9 @@ function App() {
       });
   }, [dispatch]);
 
-  if (loading) {
-    return <Loader message="Checking authentication..." />;
-  }
+  // if (loading) {
+  //   return <Loader message="Checking authentication..." />;
+  // }
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900 flex flex-col">

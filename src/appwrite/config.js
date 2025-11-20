@@ -96,11 +96,12 @@ export class Service {
 
   async uploadFile(file) {
     try {
-      return await this.bucketStorage.createFile({
+      const result = await this.bucketStorage.createFile({
         bucketId: conf.bucketId,
         fileId: ID.unique(),
         file,
       });
+      return result;
     } catch (error) {
       console.log(`File upload error:`, error);
       return false;

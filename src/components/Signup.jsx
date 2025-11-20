@@ -1,0 +1,93 @@
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { login as loginReducer } from "../store/slice/auth.Slice";
+import { useDispatch } from "react-redux";
+import authService from "../appwrite/auth.service";
+import { useForm } from "react-hook-form";
+import Input from "./Input";
+import Button from "./Button";
+
+function Signup() {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { register, handleSubmit } = useForm();
+  const [error, setError] = useState(null);
+
+  const signup = async (data) => {
+    setError(null);
+    try {
+      const session = await authService.createAccount(data);
+      if (session) {
+        const userData = await authService.getCurrentUser();
+        if (userData) {
+          dispatch(loginReducer({ userData }));
+          navigate("/");
+        }
+      }
+    } catch (error) {
+      setError(error.message || "Signup failed");
+    }
+  };
+
+  return (
+    <div>
+      <div className="flex items-center justify-center w-full">
+        <div
+          className={`mx-auto w-full max-w-lg bg-gray-100 rounded-xl p-10 border border-black/10`}
+        >
+          <div className="mb-2 flex justify-center">
+            <span className="inline-block w-full max-w-[100px]">Logo</span>
+          </div>
+        </div>
+        <h2 className="text-center text-2xl font-bold leading-tight">
+          Create a new account
+        </h2>
+        <p className="mt-2 text-center text-base text-black/60">
+          Already have an account?&nbsp;
+          <Link to="/login" className="text-blue-600 hover:underline">
+            Log in
+          </Link>
+        </p>
+        {error && <p className="text-red-600 mt-8 text-center">{error}</p>}
+        <form onSubmit={handleSubmit(signup)}>
+          <div className="space-y-5">
+            <Input
+              label="Full Name: "
+              placeholder="Enter your full name"
+              type="text"
+              {...register("name", { required: true })}
+            />
+            <Input
+              label="Email: "
+              placeholder="Enter your email"
+              type="email"
+              {...register("email", {
+                required: "Email is required",
+                validate: {
+                  matchPattern: (value) => {
+                    const pattern =
+                      /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+                    return pattern.test(value) || "Invalid email address";
+                  },
+                },
+              })}
+            />
+            <Input
+              label="Password: "
+              placeholder="Enter your password"
+              type="password"
+              {...register("password", { required: true })}
+            />
+            <div className="pt-2">
+              <Button type="submit" className="w-full">
+                Create Account
+              </Button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+export default Signup;
